@@ -102,20 +102,83 @@ class Ball extends JPanel implements Runnable, MouseListener {
     }
 }
 
+class CollisionDetection implements Runnable {
+
+    ArrayList<Ball> balls;
+
+    CollisionDetection(ArrayList<Ball> balls) {
+        this.balls = balls;
+    }
+
+    public void run() {
+        while (true) {
+            for (Ball ball1 : balls) {
+                for (Ball ball2 : balls) {
+                    if (ball1.ID == ball2.ID) {
+                        continue;
+                    }
+
+                    if (isColliding(ball1, ball2)) {
+                        handleCollision(ball1, ball2);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isColliding(Ball ball1, Ball ball2) {
+        double distBetweenCenters = Math.sqrt( (ball1.x - ball2.x) * (ball1.x - ball2.x)
+                                                + (ball1.y - ball2.y) * (ball1.y - ball2.y) );
+
+        return distBetweenCenters < 2 * ball1.radius;
+    }
+
+    private void handleCollision(Ball ball1, Ball ball2) {
+        ball1.dx = -ball1.dx;
+        ball2.dx = -ball2.dx;
+
+        ball1.dy = -ball1.dy;
+        ball2.dy = -ball2.dy;
+    }
+}
+
 class BouncyBallsPanel extends JPanel {
+
+    ArrayList<Ball> balls;
 
     public BouncyBallsPanel() {
         setLayout(null);
-        add(new Ball(Color.red, 50 - (int) Math.round((Math.random() * 25)),
-                                50 - (int) Math.round((Math.random() * 25)),
-                                2 - (int) Math.round((Math.random() * 1)),
-                                2 - (int) Math.round((Math.random() * 1)),
-                                1));
-        add(new Ball(Color.blue, 50 - (int) Math.round((Math.random() * 25)),
-                                50 - (int) Math.round((Math.random() * 25)),
-                                2 - (int) Math.round((Math.random() * 1)),
-                                2 - (int) Math.round((Math.random() * 1)),
-                                2));
+        balls = new ArrayList<Ball>();
+        balls.add(new Ball(Color.red, 50 - (int) Math.round((Math.random() * 25)),
+                50 - (int) Math.round((Math.random() * 25)),
+                2 - (int) Math.round((Math.random() * 1)),
+                2 - (int) Math.round((Math.random() * 1)),
+                1));
+
+        balls.add(new Ball(Color.blue, 50 - (int) Math.round((Math.random() * 25)),
+                50 - (int) Math.round((Math.random() * 25)),
+                2 - (int) Math.round((Math.random() * 1)),
+                2 - (int) Math.round((Math.random() * 1)),
+                2));
+
+        balls.add(new Ball(Color.black, 50 - (int) Math.round((Math.random() * 25)),
+                50 - (int) Math.round((Math.random() * 25)),
+                2 - (int) Math.round((Math.random() * 1)),
+                2 - (int) Math.round((Math.random() * 1)),
+                3));
+
+        balls.add(new Ball(Color.pink, 50 - (int) Math.round((Math.random() * 25)),
+                50 - (int) Math.round((Math.random() * 25)),
+                2 - (int) Math.round((Math.random() * 1)),
+                2 - (int) Math.round((Math.random() * 1)),
+                4));
+
+
+        for (Ball ball : balls) {
+            add(ball);
+        }
+
+        new Thread(new CollisionDetection(balls)).start();
     }
 }
 
